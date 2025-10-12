@@ -420,9 +420,9 @@
     <!-- 헤더 -->
     <header class="header">
         <div class="header-container">
-            <a href="{% url 'product_list' %}" class="logo">루팡!</a>
+            <a href="{% url 'home' %}" class="logo">루팡!</a>
             <div class="breadcrumb">
-                <a href="{% url 'product_list' %}">홈</a> > 
+                <a href="{% url 'home' %}">홈</a> > 
                 <a href="{% url 'product_list' %}">{{ product.category }}</a> > 
                 {{ product.name|truncatechars:30 }}
             </div>

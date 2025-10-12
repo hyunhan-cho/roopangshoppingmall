@@ -14,17 +14,20 @@
         
         body {
             font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: #f7f7f7;
+            background: radial-gradient(1200px 600px at 10% -10%, #e9f0ff 0%, transparent 60%),
+                        radial-gradient(1200px 600px at 110% -10%, #ffe9f3 0%, transparent 60%),
+                        #f7f7f7;
             color: #333;
         }
         
         /* 헤더 */
         .header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(90deg, #346aff 0%, #7b5cff 50%, #ff5cc8 100%);
+            border-bottom: none;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 6px 18px rgba(52,106,255,0.25);
         }
         
         .header-container {
@@ -38,10 +41,11 @@
         
         .logo {
             font-size: 24px;
-            font-weight: 700;
-            color: #346aff;
+            font-weight: 800;
+            color: #fff;
             text-decoration: none;
             margin-right: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.25);
         }
         
         .search-bar {
@@ -173,17 +177,35 @@
         .product-card {
             background: white;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+        
+        .product-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 120%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+            transform: skewX(-20deg);
+            transition: 0.4s;
+            pointer-events: none;
         }
         
         .product-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(52,106,255,0.18);
+            transform: translateY(-4px) scale(1.01);
+        }
+        
+        .product-card:hover::after {
+            left: 150%;
         }
         
         .product-image {
@@ -199,6 +221,8 @@
             flex-direction: column;
             gap: 6px;
             flex: 1 1 auto; /* 남는 공간 채워서 버튼을 하단으로 밀기 */
+            position: relative;
+            z-index: 1;
         }
         
         .product-brand {
@@ -258,32 +282,36 @@
         
         .cart-btn-product {
             width: 100%;
-            background: #346aff;
-            color: white;
+            background: linear-gradient(135deg, #6effa3 0%, #28c6ff 100%);
+            color: #0d1b2a;
             border: none;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 10px;
+            border-radius: 8px;
             font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: transform .15s ease, box-shadow .2s ease;
+            box-shadow: 0 10px 18px rgba(40,198,255,0.25);
         }
         
         .cart-btn-product:hover {
-            background: #2c5dff;
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 14px 24px rgba(40,198,255,0.35);
         }
         
         .affiliated-badge {
             position: absolute;
             top: 8px;
             left: 8px;
-            background: #ff6b6b;
-            color: white;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #7b1b3e;
             font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(255,106,106,0.3);
+            border: 1px solid rgba(255,255,255,0.8);
+            z-index: 2;
         }
-        
-        .product-card { position: relative; }
 
         /* 버튼 컨테이너를 카드 하단에 고정 */
         .card-actions {
@@ -296,10 +324,11 @@
     <!-- 헤더 -->
     <header class="header">
         <div class="header-container">
-            <a href="/" class="logo">루팡!</a>
+            <a href="{% url 'home' %}" class="logo">루팡!</a>
             <form class="search-bar" method="get" action="{% url 'product_list' %}">
-                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="찾고 싶은 상품을 검색해보세요!">
+                <input id="list-search" type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="찾고 싶은 상품을 검색해보세요!" autocomplete="off">
                 <button class="search-btn" type="submit">검색</button>
+                <div id="list-auto" style="position:absolute;left:0;right:0;top:42px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.08);display:none;overflow:hidden;"></div>
             </form>
             <div class="header-right">
                 <a href="{% url 'cart_view' %}" class="cart-btn">🛒 장바구니</a>
@@ -340,7 +369,7 @@
                     {% if product.if_affiliated %}
                     <div class="affiliated-badge">제휴</div>
                     {% endif %}
-                    <img src="{{ product.img }}" alt="{{ product.name }}" class="product-image">
+                    <img src="{{ product.img }}" alt="{{ product.name }}" class="product-image" loading="lazy">
                     <div class="product-info">
                         <div class="product-brand">{{ product.brand }}</div>
                         <div class="product-name">{{ product.name }}</div>
@@ -369,6 +398,29 @@
     <div id="cartApi" data-add-url="{% url 'add_to_cart' %}" style="display:none"></div>
 
     <script>
+        // 간단 자동완성
+        const listInput = document.getElementById('list-search');
+        const listBox = document.getElementById('list-auto');
+        let listTimer = null;
+        if (listInput){
+            listInput.addEventListener('input', () => {
+                clearTimeout(listTimer);
+                const q = listInput.value.trim();
+                if (!q){ listBox.style.display='none'; listBox.innerHTML=''; return; }
+                listTimer = setTimeout(async () => {
+                    const res = await fetch('{% url "api_search_suggest" %}?q=' + encodeURIComponent(q));
+                    const data = await res.json();
+                    if (!data.ok || !data.suggestions.length){ listBox.style.display='none'; listBox.innerHTML=''; return; }
+                    listBox.innerHTML = data.suggestions.map(s => `<div class=\"auto-item\" data-v=\"${s}\" style=\"padding:10px 12px;font-size:14px;cursor:pointer;\">${s}</div>`).join('');
+                    listBox.style.display = 'block';
+                    listBox.querySelectorAll('.auto-item').forEach(el => el.addEventListener('click', ()=>{
+                        listInput.value = el.dataset.v; listBox.style.display='none';
+                        el.closest('form').submit();
+                    }));
+                }, 150);
+            });
+            document.addEventListener('click', (e)=>{ if(!e.target.closest('.search-bar')){ listBox.style.display='none'; }});
+        }
         // CSRF 토큰 쿠키에서 읽기
         function getCookie(name) {
             const value = `; ${document.cookie}`;

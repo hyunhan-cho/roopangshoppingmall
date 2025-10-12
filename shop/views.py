@@ -6,6 +6,8 @@ from .models import Product, Participant
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
 from .utils.embeddings import OpenAIEmbeddingGenerator
+from datetime import datetime, timedelta
+import random
 
 def consent_form(request):
     """
@@ -38,13 +40,39 @@ def consent_form(request):
             # 세션에 동의 상태 및 참여자 ID 저장
             request.session['experiment_consent'] = True
             request.session['participant_id'] = participant.id
-            return redirect('product_list')
+            return redirect('home')
         else:
             return render(request, 'shop/consent_form.html', {
                 'error': '모든 동의 항목과 기본 정보를 정확히 입력해주세요.'
             })
     
     return render(request, 'shop/consent_form.html')
+
+@ensure_csrf_cookie
+def home(request):
+    """쿠팡 메인 느낌의 랜딩 페이지: 상단 배너, 카테고리, 오늘의 발견, 실시간 검색어 등"""
+    # 실험 동의 확인
+    if not request.session.get('experiment_consent', False):
+        return redirect('consent_form')
+
+    # 오늘의 발견: 제휴 상품 위주 상위 8개 랜덤
+    qs = Product.objects.all()
+    affiliated = list(qs.filter(if_affiliated=True)[:30])
+    random.shuffle(affiliated)
+    todays = affiliated[:8] if affiliated else list(qs[:8])
+
+    # 인기 카테고리 샘플
+    categories = (
+        Product.objects.values_list('category', flat=True)
+        .distinct()
+    )
+    categories = [c for c in categories if c][:10]
+
+    context = {
+        'todays': todays,
+        'categories': categories,
+    }
+    return render(request, 'shop/home.html', context)
 
 @ensure_csrf_cookie
 def product_list(request):
@@ -61,7 +89,7 @@ def product_list(request):
         products = products.filter(
             Q(name__icontains=q) | Q(brand__icontains=q) | Q(category__icontains=q)
         )
-    context = {'products': products}
+    context = {'products': products, 'q': q}
     return render(request, 'shop/product_list.html', context)
 
 @ensure_csrf_cookie
@@ -187,3 +215,55 @@ def api_ai_recommendations(request):
     )
 
     return JsonResponse({'ok': True, 'results': results})
+
+
+def _suggest_from_products(query: str, limit: int = 8):
+    """간단한 제품명/브랜드/카테고리 기반 자동완성 후보 생성"""
+    if not query:
+        return []
+    base = Product.objects.filter(
+        Q(name__icontains=query) | Q(brand__icontains=query) | Q(category__icontains=query)
+    )
+    names = list(base.values_list('name', flat=True)[:limit])
+    brands = list(base.values_list('brand', flat=True)[:limit])
+    cats = list(base.values_list('category', flat=True)[:limit])
+    # 우선순위: 이름 > 브랜드 > 카테고리, 중복 제거
+    seen, out = set(), []
+    for s in names + brands + cats:
+        if s and s not in seen:
+            out.append(s)
+            seen.add(s)
+        if len(out) >= limit:
+            break
+    return out
+
+
+@ensure_csrf_cookie
+def api_search_suggest(request):
+    if request.method != 'GET':
+        return HttpResponseBadRequest('Invalid method')
+    q = request.GET.get('q', '').strip()
+    try:
+        limit = int(request.GET.get('limit', 8))
+    except ValueError:
+        limit = 8
+    return JsonResponse({'ok': True, 'suggestions': _suggest_from_products(q, limit)})
+
+
+@ensure_csrf_cookie
+def api_search_trending(request):
+    """가상의 실시간 검색어 제공: 최근 인기 카테고리/브랜드/키워드 믹스"""
+    if request.method != 'GET':
+        return HttpResponseBadRequest('Invalid method')
+    brands = list(Product.objects.values_list('brand', flat=True).distinct()[:30])
+    cats = list(Product.objects.values_list('category', flat=True).distinct()[:30])
+    picks = [b for b in brands if b][:10] + [c for c in cats if c][:10]
+    random.shuffle(picks)
+    trending = picks[:10]
+    # 랭킹과 변동 화살표 가상 부여
+    arrows = ['▲', '▼', '→']
+    payload = [
+        {'rank': i+1, 'term': t, 'delta': random.choice(arrows)}
+        for i, t in enumerate(trending)
+    ]
+    return JsonResponse({'ok': True, 'trending': payload})

@@ -20,6 +20,7 @@ from shop import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.consent_form, name='consent_form'),  # 루트 URL에 실험 동의서
+    path('', views.consent_form, name='consent_form'),  # 루트 URL은 동의서로 시작
+    path('home/', views.home, name='home'),  # 동의 후 이동할 홈 페이지
     path('shop/', include('shop.urls')),
 ]

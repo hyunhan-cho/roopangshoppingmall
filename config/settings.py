@@ -56,6 +56,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Static files via WhiteNoise (must be right after SecurityMiddleware)
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -112,7 +114,7 @@ def _fix_db_url(url: str | None) -> str | None:
 DATABASE_URL = _fix_db_url(os.getenv('DATABASE_URL'))
 DIRECT_URL = _fix_db_url(os.getenv('DIRECT_URL'))
 
-# Supabase 연결 문제가 있으면 임시로 SQLite 사용
+# Supabase PostgreSQL 연결
 try:
     if DATABASE_URL:
         # Supabase 연결
@@ -176,6 +178,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Behind Fly.io proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

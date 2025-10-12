@@ -1,0 +1,41 @@
+# fly.toml app configuration file generated for roopangshoppingmall on 2025-10-12
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = "roopangshoppingmall" # 필요시 변경
+primary_region = "nrt" # 도쿄 근접
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  DJANGO_DEBUG = "False"
+  DJANGO_ALLOWED_HOSTS = "*"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [services.concurrency]
+    type = "requests"
+    hard_limit = 50
+    soft_limit = 25
+
+  [[services.http_checks]]
+    interval = "10s"
+    grace_period = "10s"
+    method = "get"
+    path = "/"
+    protocol = "http"
+    timeout = "2s"
+    tls_skip_verify = false

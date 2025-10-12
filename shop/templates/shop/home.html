@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>루팡! - 홈</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f7f7f7; color:#222; }
+    /* 헤더 */
+    .header { position:sticky; top:0; z-index:50; background:linear-gradient(90deg,#346aff 0%,#7b5cff 50%,#ff5cc8 100%); box-shadow:0 6px 18px rgba(52,106,255,.25); }
+    .header-container { max-width:1200px; margin:0 auto; padding:10px 20px; display:flex; align-items:center; gap:16px; }
+    .logo { font-size:24px; font-weight:800; color:#fff; text-decoration:none; text-shadow:0 2px 10px rgba(0,0,0,.25); }
+    .search { position:relative; flex:1; }
+    .search input { width:100%; padding:11px 44px 11px 14px; border-radius:10px; border:none; outline:none; }
+    .search .btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); background:#111827; color:#fff; border:none; border-radius:8px; font-size:12px; padding:8px 12px; cursor:pointer; }
+    .auto-box { position:absolute; left:0; right:0; top:44px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; box-shadow:0 10px 28px rgba(0,0,0,.08); display:none; overflow:hidden; }
+    .auto-item { padding:10px 12px; font-size:14px; cursor:pointer; }
+    .auto-item:hover { background:#f7f9ff; }
+
+    .topbar { background:#fff; border-bottom:1px solid #e5e7eb; }
+    .topbar-container { max-width:1200px; margin:0 auto; padding:10px 20px; display:flex; gap:20px; }
+
+    .main { max-width:1200px; margin:0 auto; padding:20px; display:grid; gap:20px; grid-template-columns: 1fr 300px; }
+    .banner { grid-column:1 / -1; background:linear-gradient(120deg,#ffe2f4,#e6eaff); border-radius:16px; padding:32px; display:flex; align-items:center; justify-content:space-between; overflow:hidden; box-shadow:0 10px 28px rgba(52,106,255,0.12); }
+    .banner h2 { font-size:32px; font-weight:900; color:#2b2d42; text-shadow:0 2px 4px rgba(0,0,0,0.05); }
+    .banner p { margin-top:8px; color:#555; font-size:15px; }
+    .banner .cta { margin-top:16px; background:linear-gradient(135deg, #6effa3 0%, #28c6ff 100%); color:#0d1b2a; border:none; padding:12px 20px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:0 10px 18px rgba(40,198,255,0.3); transition:transform .15s ease, box-shadow .2s ease; text-decoration:none; display:inline-block; }
+    .banner .cta:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 14px 24px rgba(40,198,255,0.4); }
+
+    .grid { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; }
+    .grid-title { font-size:18px; font-weight:800; margin-bottom:12px; }
+    .products { display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:14px; }
+    .card { position:relative; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; background:#fff; transition:.25s; }
+    .card::after { content:""; position:absolute; top:0; left:-150%; width:120%; height:100%; background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%); transform:skewX(-20deg); transition:0.4s; pointer-events:none; }
+    .card:hover { transform:translateY(-4px) scale(1.01); box-shadow:0 16px 40px rgba(52,106,255,.22); }
+    .card:hover::after { left:150%; }
+    .card img { width:100%; height:150px; object-fit:cover; }
+    .card .info { padding:10px; position:relative; z-index:1; }
+    .card .brand { font-size:11px; color:#888; }
+    .card .name { font-size:13px; color:#222; margin:6px 0; height:32px; overflow:hidden; }
+    .card .price { font-weight:800; color:#346aff; }
+    .badge { position:absolute; left:8px; top:8px; background:linear-gradient(135deg,#ff9a9e,#fecfef); color:#7b1b3e; font-size:10px; padding:2px 8px; border-radius:12px; border:1px solid rgba(255,255,255,.8); box-shadow:0 6px 14px rgba(255,106,106,.3); z-index:2; }
+
+    .side { display:flex; flex-direction:column; gap:20px; }
+    .trending { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+    .trend-title { font-size:16px; font-weight:800; margin-bottom:10px; background:linear-gradient(90deg, #346aff, #ff5cc8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .trend-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #eee; font-size:14px; cursor:pointer; transition:.2s; }
+    .trend-item:hover { background:#f7f9ff; padding-left:4px; }
+    .trend-item:last-child { border-bottom:none; }
+
+    .catbox { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+    .catbox .list { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { padding:6px 10px; font-size:12px; border-radius:9999px; border:1px solid #e5e7eb; background:#f8fafc; cursor:pointer; transition:.2s; }
+    .chip:hover { background:linear-gradient(135deg, #eef2ff, #fce7f3); color:#3730a3; transform:translateY(-1px); border-color:#a5b4fc; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a class="logo" href="{% url 'home' %}">루팡!</a>
+      <div class="search">
+        <form action="{% url 'product_list' %}" method="get" onsubmit="return submitSearch(event)">
+          <input id="search-input" type="text" name="q" placeholder="찾고 싶은 상품을 검색해보세요!" autocomplete="off" />
+          <button class="btn" type="submit">검색</button>
+        </form>
+        <div id="auto-box" class="auto-box"></div>
+      </div>
+      <a href="{% url 'cart_view' %}" style="color:#fff; text-decoration:none; font-weight:700;">🛒 장바구니</a>
+    </div>
+  </header>
+
+  <div class="topbar">
+    <div class="topbar-container">
+      <a href="{% url 'product_list' %}" style="color:#fff;background:#111827;padding:4px 10px;border-radius:6px;text-decoration:none;font-weight:600;">🚀 전체상품</a>
+      <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">오늘의딜</a>
+      <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">브랜드관</a>
+      <a href="{% url 'cart_view' %}" style="color:#333;text-decoration:none;">장바구니</a>
+    </div>
+  </div>
+
+  <main class="main">
+    <section class="banner">
+      <div>
+        <h2>최대 70% 할인! After 추석 특가</h2>
+        <p>지금 가장 HOT한 생활용품을 만나보세요</p>
+  <a class="cta" href="{% url 'product_list' %}">바로 쇼핑하기</a>
+      </div>
+            <img src="https://images.unsplash.com/photo-1512303694087-39c6069ae09b?q=80&w=600&auto=format&fit=crop" alt="banner" style="height:140px;border-radius:12px;border:1px solid #e5e7eb;" loading="lazy" />
+    </section>
+
+    <section class="grid" style="grid-column:1 / 2;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="grid-title">오늘의 발견</div>
+        <a href="{% url 'product_list' %}" style="font-size:14px; color:#346aff; text-decoration:none; font-weight:600;">전체보기 →</a>
+      </div>
+      <div class="products">
+        {% for p in todays %}
+          <a class="card" href="{% url 'product_detail' p.id %}" style="text-decoration:none; color:inherit;">
+            {% if p.if_affiliated %}<div class="badge">제휴</div>{% endif %}
+            <img src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" />
+            <div class="info">
+              <div class="brand">{{ p.brand }}</div>
+              <div class="name">{{ p.name }}</div>
+              <div class="price">{{ p.price|floatformat:"0" }}원</div>
+            </div>
+          </a>
+        {% empty %}
+          <div>상품이 없습니다.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="trending">
+        <div class="trend-title">실시간 검색어</div>
+        <div id="trend-list"></div>
+      </div>
+      <div class="catbox">
+        <div class="grid-title">인기 카테고리</div>
+        <div class="list">
+          {% for c in categories %}
+            <span class="chip" onclick="gotoCategory('{{ c }}')"># {{ c }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    function submitSearch(e){
+      const v = document.getElementById('search-input').value.trim();
+      if (!v) { e.preventDefault(); return false; }
+      return true;
+    }
+    function gotoCategory(cat){
+      const url = new URL('{% url "product_list" %}', location.origin);
+      url.searchParams.set('q', cat);
+      location.href = url.toString();
+    }
+
+    // 자동완성 & 트렌딩
+    const box = document.getElementById('auto-box');
+    const input = document.getElementById('search-input');
+    let acTimer = null;
+    input.addEventListener('input', () => {
+      const q = input.value.trim();
+      clearTimeout(acTimer);
+      if (!q) { box.style.display='none'; box.innerHTML=''; return; }
+      acTimer = setTimeout(async () => {
+        const res = await fetch('{% url "api_search_suggest" %}?q=' + encodeURIComponent(q));
+        const data = await res.json();
+        if (data.ok) renderSuggest(data.suggestions);
+      }, 150);
+    });
+    input.addEventListener('focus', () => { if (box.innerHTML) box.style.display='block'; });
+    document.addEventListener('click', (e)=>{ if(!e.target.closest('.search')){ box.style.display='none'; }});
+
+    function renderSuggest(items){
+      if (!items || !items.length){ box.style.display='none'; box.innerHTML=''; return; }
+      box.innerHTML = items.map(s => `<div class="auto-item" data-v="${s}">${s}</div>`).join('');
+      box.style.display = 'block';
+      box.querySelectorAll('.auto-item').forEach(el => el.addEventListener('click', ()=>{
+        input.value = el.dataset.v; box.style.display='none';
+        const f = el.closest('.search').querySelector('form'); f.submit();
+      }));
+    }
+
+    async function loadTrending(){
+      const res = await fetch('{% url "api_search_trending" %}');
+      const data = await res.json();
+      const list = document.getElementById('trend-list');
+      if (!data.ok) { list.innerHTML = '<div>데이터 없음</div>'; return; }
+      list.innerHTML = data.trending.map(t => `
+        <div class="trend-item">
+          <span>${t.rank}. ${t.term}</span>
+          <span style="color:${t.delta==='▲'?'#dc2626':t.delta==='▼'?'#2563eb':'#6b7280'}">${t.delta}</span>
+        </div>`).join('');
+    }
+    loadTrending();
+  </script>
+</body>
+</html>
