@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루팡! - 생활용품</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #346aff;
+            text-decoration: none;
+            margin-right: 40px;
+        }
+        
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 45px 10px 15px;
+            border: 2px solid #346aff;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #346aff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-left: auto;
+        }
+        
+        .cart-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            position: relative;
+        }
+        
+        .cart-btn:hover {
+            color: #346aff;
+        }
+        
+        /* 네비게이션 */
+        .nav {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 10px 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-item {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 5px 0;
+        }
+        
+        .nav-item.active {
+            color: #346aff;
+            font-weight: 500;
+        }
+        
+        /* 메인 컨테이너 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .filter-btn.active {
+            background: #346aff;
+            color: white;
+            border-color: #346aff;
+        }
+        
+        /* 상품 그리드 */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .product-info {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1 1 auto; /* 남는 공간 채워서 버튼을 하단으로 밀기 */
+        }
+        
+        .product-brand {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .product-name {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            height: 36px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .product-discount {
+            font-size: 12px;
+            color: #ff6b6b;
+            margin-bottom: 8px;
+        }
+        
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .stars {
+            color: #ffc107;
+        }
+        
+        .free-shipping {
+            background: #e8f4fd;
+            color: #346aff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .cart-btn-product {
+            width: 100%;
+            background: #346aff;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .cart-btn-product:hover {
+            background: #2c5dff;
+        }
+        
+        .affiliated-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ff6b6b;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .product-card { position: relative; }
+
+        /* 버튼 컨테이너를 카드 하단에 고정 */
+        .card-actions {
+            margin-top: auto; /* 위의 내용이 공간을 차지하고 남은 공간을 밀어 버튼이 하단으로 */
+            padding: 0 12px 12px 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-container">
+            <a href="/" class="logo">루팡!</a>
+            <form class="search-bar" method="get" action="{% url 'product_list' %}">
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="찾고 싶은 상품을 검색해보세요!">
+                <button class="search-btn" type="submit">검색</button>
+            </form>
+            <div class="header-right">
+                <a href="{% url 'cart_view' %}" class="cart-btn">🛒 장바구니</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 네비게이션 -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#" class="nav-item active">생활용품</a>
+            <a href="#" class="nav-item">문구/오피스</a>
+            <a href="#" class="nav-item">취미/반려동물</a>
+            <a href="#" class="nav-item">홈인테리어</a>
+        </div>
+    </nav>
+    
+    <!-- 메인 컨테이너 -->
+    <div class="main-container">
+        <h1 class="page-title">생활용품 🏠</h1>
+        
+        <!-- 필터 -->
+        <div class="filters">
+            <button class="filter-btn active">전체</button>
+            <button class="filter-btn">필통</button>
+            <button class="filter-btn">노트</button>
+            <button class="filter-btn">스티커</button>
+            <button class="filter-btn">떡메모지</button>
+            <button class="filter-btn">다이어리</button>
+            <button class="filter-btn">마스킹테이프</button>
+        </div>
+        
+        <!-- 상품 그리드 -->
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <a href="{% url 'product_detail' product.id %}" class="product-link" style="display:block; text-decoration:none; color:inherit;">
+                    {% if product.if_affiliated %}
+                    <div class="affiliated-badge">제휴</div>
+                    {% endif %}
+                    <img src="{{ product.img }}" alt="{{ product.name }}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-brand">{{ product.brand }}</div>
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-price">{{ product.price|floatformat:"0" }}원</div>
+                        {% if product.price > 15000 %}
+                        <div class="product-discount">🎯 특가 할인</div>
+                        {% endif %}
+                        <div class="product-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span>({{ product.get_reviews_data|length }})</span>
+                        </div>
+                        {% if product.price > 9990 %}
+                        <div class="free-shipping">무료배송</div>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="card-actions">
+                    <button type="button" class="cart-btn-product" data-product-id="{{ product.id }}">장바구니 담기</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- API 엔드포인트 데이터 주입 -->
+    <div id="cartApi" data-add-url="{% url 'add_to_cart' %}" style="display:none"></div>
+
+    <script>
+        // CSRF 토큰 쿠키에서 읽기
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        async function addToCart(productId, quantity = 1) {
+            const addUrl = (document.getElementById('cartApi')?.dataset.addUrl) || '/shop/api/cart/add/';
+            try {
+                const res = await fetch(addUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken') || '',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    },
+                    body: new URLSearchParams({ product_id: String(productId), quantity: String(quantity) })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || 'add-failed');
+                alert('장바구니에 추가되었습니다!');
+            } catch (err) {
+                console.error(err);
+                alert('장바구니 담기 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.cart-btn-product').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const id = btn.dataset.productId;
+                    addToCart(id);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

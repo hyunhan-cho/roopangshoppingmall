@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연구 참여 동의서 (Informed Consent)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .consent-container {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #173b6b;
+            padding: 24px 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .institution {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+        .meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .section p, .section li {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 12px;
+        }
+        
+        .section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .highlight-box {
+            background: #f8f9ff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .highlight-box h3 {
+            color: #346aff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .consent-checkboxes {
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .checkbox-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 12px;
+            margin-top: 3px;
+            transform: scale(1.2);
+        }
+        
+        .checkbox-item label {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #fcc;
+            font-size: 14px;
+        }
+        
+        .ack-box {
+            background: #fffdf5;
+            border: 1px solid #f1e3b0;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #6b5b00;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #346aff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2c5dff;
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="consent-container">
+        <div class="header">
+            <div class="institution">한국외국어대학교 미디어커뮤니케이션학부 ‘알고리즘미디어와 사회’ 수업 (7조)</div>
+            <h1>연구 참여 동의서 (Informed Consent)</h1>
+            <p>제휴 브랜드 중심 추천시스템에 대한 소비자 반응 분석</p>
+            <div class="meta" style="margin-top:10px;">
+                <div><strong>주연구책임자(PI):</strong> 이상욱 교수 (지도교수)</div>
+                <div><strong>연구 담당자:</strong> 조현한 (개발·연구 담당, 010-5779-1297, hyeonhanjo1@gmail.com)</div>
+                <div><strong>연구 구분:</strong> 사회과학 연구 (수업 과제)</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <div class="section">
+                <h2>1. 연구 개요</h2>
+                <p>본 연구는 온라인 쇼핑 환경에서 AI 추천시스템(예: “당신의 취향을 기반으로 추천합니다”)이 소비자의 선택, 신뢰 및 만족도에 미치는 영향을 조사합니다. 참여자는 실험용 쇼핑 페이지를 이용하여 상품 탐색과 장바구니 담기, 추천 확인, 간단한 설문을 진행합니다.</p>
+                <div class="highlight-box">
+                    <h3>연구 목적</h3>
+                    <p>제휴 브랜드 중심으로 표시되는 추천이 사용자의 인지 및 선택 행동에 미치는 영향을 분석하여 투명하고 공정한 추천 체계를 설계하는 데 기여합니다.</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>2. 참여 절차 및 소요시간</h2>
+                <ul>
+                    <li><strong>절차:</strong> 동의서 확인 → 상품 탐색/장바구니 → 추천 확인 → 선택 → 설문</li>
+                    <li><strong>소요시간:</strong> 약 10–15분</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>3. 개인정보 및 데이터 보안</h2>
+                <ul>
+                    <li>개인 식별 정보는 수집하지 않으며, 모든 데이터는 익명 또는 가명 처리됩니다.</li>
+                    <li>연구 데이터는 암호화된 저장소에 보관되며, 연구팀 외 접근이 제한됩니다.</li>
+                    <li>보관기간은 연구 종료 후 최대 3년이며, 이후 안전하게 파기됩니다.</li>
+                    <li>데이터는 학술 목적(논문/학회 발표)에만 사용됩니다.</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>4. 수집되는 정보의 종류</h2>
+                <ul>
+                    <li>행동 데이터: 클릭/조회/장바구니 담기/추천 선택 등 상호작용 로그</li>
+                    <li>시간 데이터: 선택 소요시간, 화면 체류시간</li>
+                    <li>설문 데이터: 만족도, 신뢰도, 구매 의향, 주관식 의견</li>
+                    <li>인구통계: 연령대, 온라인 쇼핑 빈도(선택 입력)</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>5. 위험/이익 및 보상</h2>
+                <ul>
+                    <li>예상되는 위험은 일상적 온라인 쇼핑과 유사한 수준이며, 민감정보는 수집하지 않습니다.</li>
+                    <li>직접적 이익은 없으나, 공정한 추천시스템 설계에 기여하게 됩니다.</li>
+                    <li>보상(있을 경우): 스타벅스 e-기프티콘 3,000원권 (선착순 50명)</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>6. 자발적 참여 및 중도 철회</h2>
+                <p>참여는 전적으로 자발적이며, 이유를 묻지 않고 언제든지 중단할 수 있습니다. 중단 시 불이익은 없습니다.</p>
+            </div>
+
+            <div class="section">
+                <h2>7. 문의처</h2>
+                <ul>
+                    <li>연구 담당자: 조현한 (개발자) — 010-5779-1297, hyeonhanjo1@gmail.com</li>
+                    <li>지도교수: 이상욱 교수 — 한국외국어대학교 미디어커뮤니케이션학부</li>
+                </ul>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="section" style="margin-top:-10px;">
+                    <h2>참여자 기본 정보</h2>
+                    <div class="highlight-box">
+                        <p style="margin-bottom:10px; font-size:14px; color:#555;">연구 진행 및 보상(해당 시) 전달을 위해 아래 정보를 입력해 주세요. 수집된 정보는 연구 종료 후 파기합니다.</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div>
+                                <label for="name" style="font-size:13px; color:#333;">이름</label>
+                                <input type="text" id="name" name="name" required placeholder="홍길동" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+                            <div>
+                                <label for="student_id" style="font-size:13px; color:#333;">학번</label>
+                                <input type="text" id="student_id" name="student_id" required placeholder="2025xxxx" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+                            <div>
+                                <label for="phone" style="font-size:13px; color:#333;">전화번호</label>
+                                <input type="tel" id="phone" name="phone" required placeholder="010-0000-0000" pattern="^0\d{1,2}-\d{3,4}-\d{4}$" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="consent-checkboxes">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="consent_research" name="consent_research">
+                        <label for="consent_research">
+                            <strong>연구 참여 동의</strong><br>
+                            위 설명서를 충분히 읽었으며 질문할 기회를 가졌습니다. 본인은 연구 목적과 절차를 이해하였고, 자발적으로 참여함에 동의합니다.
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="consent_data" name="consent_data">
+                        <label for="consent_data">
+                            <strong>데이터 수집/이용 동의</strong><br>
+                            본인은 익명화된 행동/설문 데이터를 학술 목적으로 수집·분석·활용하는 것에 동의합니다.
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="consent_participation" name="consent_participation">
+                        <label for="consent_participation">
+                            <strong>참여 조건 확인</strong><br>
+                            본인은 만 19세 이상이며, 온라인 쇼핑 경험이 있음을 확인합니다. 언제든 참여를 중단할 수 있음을 이해합니다.
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="ack-box">
+                    본 버튼을 클릭함으로써 상기의 내용을 이해하고 자발적으로 연구에 참여함에 동의합니다. 사본이 필요하시면 아래 인쇄/다운로드 버튼을 이용하십시오.
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="btn btn-primary" id="agreeBtn" disabled>
+                        동의하고 실험 시작하기 🚀
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="window.print()">인쇄</button>
+                    <a class="btn btn-secondary" href="data:text/plain;charset=utf-8,{{ '연구 참여 동의서'|urlencode }}" download="consent.txt">다운로드</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="footer">
+            <p>본 연구는 한국외국어대학교 미디어커뮤니케이션학부 ‘알고리즘미디어와 사회’ 수업의 학습 목적 사회과학 연구입니다.</p>
+        </div>
+    </div>
+    
+    <script>
+        // 모든 체크박스 + 필수 입력값이 유효할 때만 동의 버튼 활성화
+        const checkboxes = document.querySelectorAll('.consent-checkboxes input[type="checkbox"]');
+        const agreeBtn = document.getElementById('agreeBtn');
+        const nameInput = document.getElementById('name');
+        const studentInput = document.getElementById('student_id');
+        const phoneInput = document.getElementById('phone');
+
+        function validInputs() {
+            const nameOk = nameInput && nameInput.value.trim().length > 0;
+            const sidOk = studentInput && studentInput.value.trim().length > 0;
+            const phoneOk = phoneInput && phoneInput.checkValidity();
+            return nameOk && sidOk && phoneOk;
+        }
+
+        function updateButtonState() {
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            agreeBtn.disabled = !(allChecked && validInputs());
+        }
+
+        [...checkboxes, nameInput, studentInput, phoneInput].forEach(el => {
+            if (el) el.addEventListener('input', updateButtonState);
+            if (el) el.addEventListener('change', updateButtonState);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루팡! - 장바구니</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #346aff;
+            text-decoration: none;
+            margin-right: 40px;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #346aff;
+            text-decoration: none;
+        }
+        
+        .header-right {
+            margin-left: auto;
+        }
+        
+        /* 메인 컨테이너 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .cart-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+        }
+        
+        .cart-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .cart-items {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .cart-item {
+            display: flex;
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-checkbox {
+            margin-right: 15px;
+        }
+        
+        .item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-brand {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .item-name {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .item-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .quantity-input {
+            width: 40px;
+            height: 30px;
+            border: none;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .remove-btn:hover {
+            color: #ff6b6b;
+        }
+        
+        /* 사이드바 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .order-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 18px;
+            font-weight: 700;
+            color: #346aff;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            background: #346aff;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .checkout-btn:hover {
+            background: #2c5dff;
+        }
+        
+        /* 추천 섹션 */
+        .recommendation-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .ai-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .recommendation-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .recommendation-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .recommended-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .recommended-product {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .recommended-product:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .recommended-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        
+        .recommended-info {
+            padding: 12px;
+        }
+        
+        .recommended-brand {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .recommended-name {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            height: 32px;
+            overflow: hidden;
+        }
+        
+        .recommended-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .select-btn {
+            width: 100%;
+            background: #346aff;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .select-btn:hover {
+            background: #2c5dff;
+        }
+        
+        .affiliated-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ff6b6b;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-cart-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .continue-shopping {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .continue-shopping:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-container">
+            <a href="{% url 'product_list' %}" class="logo">루팡!</a>
+            <div class="breadcrumb">
+                <a href="{% url 'product_list' %}">홈</a> > 장바구니
+            </div>
+            <div class="header-right">
+                <a href="{% url 'product_list' %}" style="color: #666; text-decoration: none; font-size: 14px;">← 쇼핑 계속하기</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <!-- 장바구니 콘텐츠 -->
+        <div class="cart-content">
+            <h1 class="cart-title">장바구니 🛒</h1>
+            
+            {% if cart_products %}
+            <div class="cart-items">
+                {% for product in cart_products %}
+                <div class="cart-item">
+                    <input type="checkbox" class="item-checkbox" checked>
+                    <img src="{{ product.img }}" alt="{{ product.name }}" class="item-image">
+                    <div class="item-info">
+                        <div class="item-brand">{{ product.brand }}</div>
+                        <div class="item-name">{{ product.name }}</div>
+                        <div class="item-price">{{ product.price|floatformat:"0" }}원</div>
+                    </div>
+                    <div class="item-actions">
+                        <div class="quantity-control">
+                            <button class="quantity-btn">-</button>
+                            <input type="number" value="1" class="quantity-input">
+                            <button class="quantity-btn">+</button>
+                        </div>
+                        <button class="remove-btn">삭제</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>장바구니가 비어있습니다</h3>
+                <p>원하는 상품을 장바구니에 담아보세요!</p>
+                <a href="{% url 'product_list' %}" class="continue-shopping">쇼핑 계속하기</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- 사이드바 -->
+        {% if cart_products %}
+        <div class="sidebar">
+            <div class="order-summary">
+                <h3 class="summary-title">주문 요약</h3>
+                <div class="summary-row">
+                    <span>상품금액</span>
+                    <span>50,000원</span>
+                </div>
+                <div class="summary-row">
+                    <span>배송비</span>
+                    <span>무료</span>
+                </div>
+                <div class="summary-total">
+                    <span>총 결제금액</span>
+                    <span>50,000원</span>
+                </div>
+                <button class="checkout-btn">주문하기</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- AI 추천 섹션 -->
+    <div class="main-container">
+        <div class="recommendation-section">
+            <div class="recommendation-header">
+                <div class="ai-icon">🤖</div>
+                <div>
+                    <div class="recommendation-title">당신의 취향을 기반으로 추천합니다</div>
+                    <div class="recommendation-subtitle">AI가 분석한 맞춤형 상품 추천</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <button id="btn-ai-reco" class="checkout-btn" style="width:auto; padding:10px 14px; font-size:14px;">AI 추천 받아보기</button>
+                <div id="ai-reco-status" style="font-size:13px; color:#666; display:none; align-self:center;">추천 생성 중...</div>
+            </div>
+            
+            <div id="ai-recommended" class="recommended-products"></div>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            const btn = document.getElementById('btn-ai-reco');
+            const status = document.getElementById('ai-reco-status');
+            const grid = document.getElementById('ai-recommended');
+            if (!btn) return;
+            
+            function render(items){
+                grid.innerHTML = '';
+                if (!items || !items.length){
+                    grid.innerHTML = '<div style="color:#666; font-size:14px;">추천 결과가 없습니다.</div>';
+                    return;
+                }
+                for (const p of items){
+                    const card = document.createElement('div');
+                    card.className = 'recommended-product';
+                    card.innerHTML = `
+                        ${p.if_affiliated ? '<div class="affiliated-badge">제휴</div>' : ''}
+                        <img src="${p.img || ''}" alt="${p.name || ''}" class="recommended-image">
+                        <div class="recommended-info">
+                            <div class="recommended-brand">${p.brand || ''}</div>
+                            <div class="recommended-name">${p.name || ''}</div>
+                            <div class="recommended-price">${(p.price||0).toLocaleString()}원</div>
+                            <button class="select-btn" data-id="${p.id}">선택하기</button>
+                        </div>`;
+                    grid.appendChild(card);
+                }
+            }
+            
+            btn.addEventListener('click', async () => {
+                status.style.display = 'inline';
+                btn.disabled = true;
+                try {
+                    const res = await fetch('{% url "api_ai_recommendations" %}');
+                    const data = await res.json();
+                    if (data.ok){
+                        render(data.results);
+                    } else {
+                        render([]);
+                    }
+                } catch (e){
+                    render([]);
+                } finally {
+                    status.style.display = 'none';
+                    btn.disabled = false;
+                }
+            });
+            
+            // 선택하기 버튼 델리게이션: 장바구니 담기
+            grid?.addEventListener('click', async (e) => {
+                const target = e.target.closest('.select-btn');
+                if (!target) return;
+                const pid = target.getAttribute('data-id');
+                if (!pid) return;
+                const formData = new FormData();
+                formData.append('product_id', pid);
+                formData.append('quantity', '1');
+                const csrf = '{{ csrf_token }}';
+                const res = await fetch('{% url "add_to_cart" %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrf },
+                    body: formData
+                });
+                if (res.ok){
+                    target.textContent = '담김!';
+                    target.disabled = true;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

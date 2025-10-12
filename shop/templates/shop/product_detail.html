@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - 루팡!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #346aff;
+            text-decoration: none;
+            margin-right: 40px;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #346aff;
+            text-decoration: none;
+        }
+        
+        .header-right {
+            margin-left: auto;
+        }
+        
+        .cart-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        
+        .cart-btn:hover {
+            color: #346aff;
+        }
+        
+        /* 메인 컨테이너 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+        
+        .product-detail {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+        }
+        
+        .product-images {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .main-image {
+            flex: 1;
+        }
+        
+        .main-image img {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-brand {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .product-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stars {
+            color: #ffc107;
+            font-size: 16px;
+        }
+        
+        .rating-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .product-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .price-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .free-shipping {
+            background: #e8f4fd;
+            color: #346aff;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .affiliated-badge {
+            background: #ff6b6b;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+            margin-left: 8px;
+        }
+        
+        /* 사이드바 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .purchase-box {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .quantity-section {
+            margin-bottom: 20px;
+        }
+        
+        .quantity-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: fit-content;
+        }
+        
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .quantity-input {
+            width: 50px;
+            height: 35px;
+            border: none;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .total-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #346aff;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-cart {
+            background: #346aff;
+            color: white;
+        }
+        
+        .btn-cart:hover {
+            background: #2c5dff;
+        }
+        
+        .btn-buy {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-buy:hover {
+            background: #ff5252;
+        }
+        
+        /* 상세 정보 섹션 */
+        .detail-sections {
+            grid-column: 1 / -1;
+            margin-top: 40px;
+        }
+        
+        .section-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            color: #346aff;
+            border-bottom-color: #346aff;
+            font-weight: 600;
+        }
+        
+        .section-content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .reviews-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .review-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .review-author {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .review-rating {
+            color: #ffc107;
+            margin-left: 10px;
+        }
+        
+        .review-date {
+            font-size: 12px;
+            color: #999;
+            margin-left: auto;
+        }
+        
+        .review-text {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        /* 관련 상품 */
+        .related-products {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        .related-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .related-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .related-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .related-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .related-info {
+            padding: 12px;
+        }
+        
+        .related-brand {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .related-name {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            height: 32px;
+            overflow: hidden;
+        }
+        
+        .related-price {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-container">
+            <a href="{% url 'product_list' %}" class="logo">루팡!</a>
+            <div class="breadcrumb">
+                <a href="{% url 'product_list' %}">홈</a> > 
+                <a href="{% url 'product_list' %}">{{ product.category }}</a> > 
+                {{ product.name|truncatechars:30 }}
+            </div>
+            <div class="header-right">
+                <a href="{% url 'cart_view' %}" class="cart-btn">🛒 장바구니</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <!-- 상품 상세 정보 -->
+        <div class="product-detail">
+            <div class="product-images">
+                <div class="main-image">
+                    <img src="{{ product.img }}" alt="{{ product.name }}">
+                </div>
+            </div>
+            
+            <div class="product-info">
+                <div class="product-brand">{{ product.brand }}</div>
+                <h1 class="product-title">{{ product.name }}</h1>
+                
+                <div class="product-rating">
+                    <span class="stars">★★★★☆</span>
+                    <span class="rating-text">4.2 ({{ reviews|length }}개 리뷰)</span>
+                </div>
+                
+                <div class="product-price">{{ product.price|floatformat:"0" }}원</div>
+                <div class="price-info">
+                    {% if product.price > 9990 %}
+                    <span class="free-shipping">무료배송</span>
+                    {% endif %}
+                    {% if product.if_affiliated %}
+                    <span class="affiliated-badge">제휴 브랜드</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 구매 사이드바 -->
+        <div class="sidebar">
+            <div class="purchase-box">
+                <div class="quantity-section">
+                    <div class="quantity-label">수량</div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                        <input type="number" value="1" min="1" class="quantity-input" id="quantity">
+                        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                    </div>
+                </div>
+                
+                <div class="total-price">
+                    총 <span id="totalPrice">{{ product.price|floatformat:"0" }}</span>원
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-cart" onclick="addToCart()">장바구니 담기</button>
+                    <button class="btn btn-buy">바로 구매</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 상세 정보 섹션 -->
+    <div class="main-container">
+        <div class="detail-sections">
+            <div class="section-tabs">
+                <button class="tab active" onclick="showTab('reviews')">상품 리뷰</button>
+                <button class="tab" onclick="showTab('info')">상품 정보</button>
+            </div>
+            
+            <div class="section-content">
+                <div id="reviews-tab" class="reviews-section">
+                    <h3>고객 리뷰 ({{ reviews|length }}개)</h3>
+                    {% for review in reviews %}
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-author">{{ review.username }}</span>
+                            <span class="review-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="review-date">{{ review.date|date:"Y.m.d" }}</span>
+                        </div>
+                        <div class="review-text">{{ review.comment }}</div>
+                    </div>
+                    {% empty %}
+                    <p style="color: #666; text-align: center; padding: 40px;">아직 작성된 리뷰가 없습니다.</p>
+                    {% endfor %}
+                </div>
+                
+                <div id="info-tab" class="info-section" style="display: none;">
+                    <h3>상품 정보</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600; width: 150px;">브랜드</td>
+                            <td style="padding: 12px 0;">{{ product.brand }}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600;">카테고리</td>
+                            <td style="padding: 12px 0;">{{ product.category }}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
+                            <td style="padding: 12px 0; font-weight: 600;">가격</td>
+                            <td style="padding: 12px 0;">{{ product.price|floatformat:"0" }}원</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px 0; font-weight: 600;">제휴 여부</td>
+                            <td style="padding: 12px 0;">
+                                {% if product.if_affiliated %}
+                                    <span style="color: #ff6b6b;">제휴 브랜드</span>
+                                {% else %}
+                                    일반 브랜드
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 관련 상품 -->
+    {% if related_products %}
+    <div class="main-container">
+        <div class="related-products">
+            <h2 class="related-title">같은 카테고리의 다른 상품</h2>
+            <div class="related-grid">
+                {% for related in related_products %}
+                <a href="{% url 'product_detail' related.id %}" class="related-item">
+                    <img src="{{ related.img }}" alt="{{ related.name }}" class="related-image">
+                    <div class="related-info">
+                        <div class="related-brand">{{ related.brand }}</div>
+                        <div class="related-name">{{ related.name }}</div>
+                        <div class="related-price">{{ related.price|floatformat:"0" }}원</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- 데이터 주입용 요소 (JS 린트 회피) -->
+    <div id="productData" data-price="{{ product.price|floatformat:'0' }}" data-pid="{{ product.id }}" style="display:none"></div>
+    <div id="cartApi" data-add-url="{% url 'add_to_cart' %}" style="display:none"></div>
+
+    <script>
+        // 가격 값을 DOM 데이터셋에서 안전하게 읽어옴 (템플릿 코드를 JS에 직접 주입하지 않음)
+        const basePrice = Number(document.getElementById('productData').dataset.price || 0);
+
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.value = (parseInt(quantityInput.value, 10) || 1) + 1;
+            updateTotalPrice();
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const current = parseInt(quantityInput.value, 10) || 1;
+            if (current > 1) {
+                quantityInput.value = current - 1;
+                updateTotalPrice();
+            }
+        }
+
+        function updateTotalPrice() {
+            const quantity = parseInt(document.getElementById('quantity').value, 10) || 1;
+            const totalPrice = basePrice * quantity;
+            const el = document.getElementById('totalPrice');
+            if (el) el.textContent = totalPrice.toLocaleString();
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        async function addToCart() {
+            const quantity = parseInt(document.getElementById('quantity').value, 10) || 1;
+            const productId = Number(document.getElementById('productData').dataset.pid || 0);
+            try {
+                const addUrl = (document.getElementById('cartApi')?.dataset.addUrl) || '/shop/api/cart/add/';
+                const res = await fetch(addUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken') || '',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    },
+                    body: new URLSearchParams({ product_id: String(productId), quantity: String(quantity) })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.ok) throw new Error(data.error || 'add-failed');
+                alert('장바구니에 추가되었습니다!');
+            } catch (err) {
+                console.error(err);
+                alert('장바구니 담기 중 오류가 발생했습니다.');
+            }
+        }
+
+        function showTab(tabName, evt) {
+            // 모든 탭 비활성화
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 모든 탭 콘텐츠 숨기기
+            const reviews = document.getElementById('reviews-tab');
+            const info = document.getElementById('info-tab');
+            if (reviews) reviews.style.display = 'none';
+            if (info) info.style.display = 'none';
+
+            // 선택된 탭 활성화
+            if (evt && evt.target) evt.target.classList.add('active');
+            const target = document.getElementById(`${tabName}-tab`);
+            if (target) target.style.display = 'block';
+        }
+
+        // 초기 바인딩
+        document.addEventListener('DOMContentLoaded', () => {
+            const qty = document.getElementById('quantity');
+            if (qty) qty.addEventListener('input', updateTotalPrice);
+            updateTotalPrice();
+        });
+    </script>
+</body>
+</html>
