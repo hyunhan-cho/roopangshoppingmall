@@ -488,7 +488,6 @@
                     const card = document.createElement('div');
                     card.className = 'recommended-product';
                     card.innerHTML = `
-                        ${p.if_affiliated ? '<div class="affiliated-badge">제휴</div>' : ''}
                         <img src="${p.img || ''}" alt="${p.name || ''}" class="recommended-image">
                         <div class="recommended-info">
                             <div class="recommended-brand">${p.brand || ''}</div>
