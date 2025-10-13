@@ -50,29 +50,29 @@
         
         .search-bar {
             flex: 1;
-            max-width: 500px;
+            max-width: 700px;
             position: relative;
         }
         
         .search-bar input {
             width: 100%;
-            padding: 10px 45px 10px 15px;
-            border: 2px solid #346aff;
-            border-radius: 4px;
+            padding: 11px 50px 11px 14px;
+            border: none;
+            border-radius: 10px;
             font-size: 14px;
             outline: none;
         }
         
         .search-btn {
             position: absolute;
-            right: 8px;
+            right: 6px;
             top: 50%;
             transform: translateY(-50%);
-            background: #346aff;
-            color: white;
+            background: #111827;
+            color: #fff;
             border: none;
-            padding: 6px 12px;
-            border-radius: 3px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 12px;
         }
@@ -85,44 +85,36 @@
         }
         
         .cart-btn {
-            background: none;
+            background: linear-gradient(135deg, #ffd54a 0%, #ffaa00 100%);
             border: none;
-            color: #666;
+            color: #0d1b2a;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 800;
             text-decoration: none;
-            position: relative;
+            padding: 10px 16px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(255,170,0,0.35);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
         }
         
         .cart-btn:hover {
-            color: #346aff;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 12px 22px rgba(255,170,0,0.45);
         }
         
-        /* 네비게이션 */
-        .nav {
-            background: white;
+        /* 상단 보조바 (홈과 동일) */
+        .topbar {
+            background: #fff;
             border-bottom: 1px solid #e5e7eb;
-            padding: 10px 0;
         }
         
-        .nav-container {
+        .topbar-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 10px 20px;
             display: flex;
-            gap: 30px;
-        }
-        
-        .nav-item {
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-            padding: 5px 0;
-        }
-        
-        .nav-item.active {
-            color: #346aff;
-            font-weight: 500;
+            gap: 20px;
         }
         
         /* 메인 컨테이너 */
@@ -282,21 +274,57 @@
         
         .cart-btn-product {
             width: 100%;
-            background: linear-gradient(135deg, #6effa3 0%, #28c6ff 100%);
-            color: #0d1b2a;
-            border: none;
-            padding: 10px;
+            position: relative;
+            background: #346aff;
+            color: #ffffff;
+            border: 1px solid #2858eb;
+            padding: 11px 14px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform .15s ease, box-shadow .2s ease;
-            box-shadow: 0 10px 18px rgba(40,198,255,0.25);
+            transition: all .2s ease;
+            box-shadow: 0 2px 4px rgba(52,106,255,0.2);
+            overflow: hidden;
+        }
+
+        .cart-btn-product::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cart-btn-product::before {
+            content: "🛒 ";
+            display: inline;
+            margin-right: 4px;
         }
         
         .cart-btn-product:hover {
-            transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 14px 24px rgba(40,198,255,0.35);
+            background: #2858eb;
+            border-color: #1d4ed8;
+            box-shadow: 0 4px 12px rgba(52,106,255,0.35);
+            transform: translateY(-1px);
+        }
+
+        .cart-btn-product:hover::after {
+            left: 100%;
+        }
+
+        .cart-btn-product:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(52,106,255,0.2);
+            background: #1d4ed8;
+        }
+
+        .cart-btn-product:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
         }
         
         .affiliated-badge {
@@ -336,15 +364,15 @@
         </div>
     </header>
     
-    <!-- 네비게이션 -->
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="#" class="nav-item active">생활용품</a>
-            <a href="#" class="nav-item">문구/오피스</a>
-            <a href="#" class="nav-item">취미/반려동물</a>
-            <a href="#" class="nav-item">홈인테리어</a>
+    <!-- 상단 보조바 (홈과 동일) -->
+    <div class="topbar">
+        <div class="topbar-container">
+            <a href="{% url 'product_list' %}" style="color:#fff;background:#111827;padding:4px 10px;border-radius:6px;text-decoration:none;font-weight:600;">🚀 전체상품</a>
+            <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">오늘의딜</a>
+            <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">브랜드관</a>
+            <a href="{% url 'cart_view' %}" style="color:#333;text-decoration:none;">장바구니</a>
         </div>
-    </nav>
+    </div>
     
     <!-- 메인 컨테이너 -->
     <div class="main-container">

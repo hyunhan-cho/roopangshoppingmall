@@ -18,13 +18,14 @@
             color: #333;
         }
         
-        /* 헤더 */
+        /* 헤더 (홈/상품목록과 동일) */
         .header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(90deg, #346aff 0%, #7b5cff 50%, #ff5cc8 100%);
+            border-bottom: none;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 6px 18px rgba(52,106,255,0.25);
         }
         
         .header-container {
@@ -38,24 +39,51 @@
         
         .logo {
             font-size: 24px;
-            font-weight: 700;
-            color: #346aff;
+            font-weight: 800;
+            color: #fff;
             text-decoration: none;
             margin-right: 40px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.25);
         }
         
         .breadcrumb {
             font-size: 14px;
-            color: #666;
+            color: rgba(255,255,255,0.9);
         }
         
         .breadcrumb a {
-            color: #346aff;
+            color: #fff;
             text-decoration: none;
+            font-weight: 600;
         }
         
         .header-right {
             margin-left: auto;
+        }
+        
+        .header-right a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header-right a:hover {
+            color: #fff;
+        }
+        
+        /* 상단 보조바 */
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .topbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            display: flex;
+            gap: 20px;
         }
         
         /* 메인 컨테이너 */
@@ -387,10 +415,20 @@
                 <a href="{% url 'home' %}">홈</a> > 장바구니
             </div>
             <div class="header-right">
-                <a href="{% url 'product_list' %}" style="color: #666; text-decoration: none; font-size: 14px;">← 쇼핑 계속하기</a>
+                <a href="{% url 'product_list' %}">← 쇼핑 계속하기</a>
             </div>
         </div>
     </header>
+    
+    <!-- 상단 보조바 -->
+    <div class="topbar">
+        <div class="topbar-container">
+            <a href="{% url 'product_list' %}" style="color:#fff;background:#111827;padding:4px 10px;border-radius:6px;text-decoration:none;font-weight:600;">🚀 전체상품</a>
+            <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">오늘의딜</a>
+            <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">브랜드관</a>
+            <a href="{% url 'cart_view' %}" style="color:#333;text-decoration:none;">장바구니</a>
+        </div>
+    </div>
     
     <div class="main-container">
         <!-- 장바구니 콘텐츠 -->
