@@ -37,9 +37,13 @@ def consent_form(request):
                 user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 ip_address=ip or None,
             )
-            # 세션에 동의 상태 및 참여자 ID 저장
+            # 기존 브라우저 세션(장바구니 포함)을 초기화하고 새 세션으로 시작
+            # 동일 브라우저에서 여러 참가자가 연속 참여할 때 이전 장바구니가 보이지 않도록 함
+            request.session.flush()
+            # 새 세션에 동의 상태 및 참여자 ID 저장 + 빈 장바구니 보장
             request.session['experiment_consent'] = True
             request.session['participant_id'] = participant.id
+            request.session['cart'] = {}
             return redirect('home')
         else:
             return render(request, 'shop/consent_form.html', {
@@ -123,6 +127,7 @@ def product_detail(request, product_id):
     }
     return render(request, 'shop/product_detail.html', context)
 
+@ensure_csrf_cookie
 def cart_view(request):
     """
     장바구니 페이지. 여기에 조작된 추천 로직이 들어갑니다.
@@ -135,6 +140,23 @@ def cart_view(request):
     cart = request.session.get('cart', {})
     cart_product_ids = list(map(int, cart.keys())) if cart else []
     cart_products = Product.objects.filter(id__in=cart_product_ids)
+
+    # 합계 계산
+    subtotal = 0
+    qty_map = {}
+    for pid_str, qty in cart.items():
+        try:
+            pid = int(pid_str)
+        except (TypeError, ValueError):
+            continue
+        qty = max(1, int(qty)) if isinstance(qty, int) or str(qty).isdigit() else 1
+        qty_map[pid] = qty
+    for p in cart_products:
+        q = qty_map.get(p.id, 1)
+        subtotal += int(p.price) * q
+    # 배송비 정책: 30,000원 미만 3,000원, 이상 무료
+    shipping = 0 if subtotal >= 30000 or subtotal == 0 else 3000
+    total = subtotal + shipping
     
     # --- 💡 연구 핵심: 조작된 추천 로직 ---
     # 1. 장바구니 상품들의 카테고리를 가져옵니다.
@@ -153,7 +175,10 @@ def cart_view(request):
     context = {
         'cart_products': cart_products,
         'recommended_products': recommended_products,
-        'cart_quantities': cart,
+        'cart_quantities': {str(k): v for k, v in cart.items()},
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'total': total,
     }
     return render(request, 'shop/cart.html', context)
 
@@ -186,6 +211,64 @@ def add_to_cart(request):
     request.session.modified = True
 
     return JsonResponse({'ok': True, 'cart': cart})
+
+
+def _calc_summary(cart: dict):
+    """세션 카트(dict[str,int])로부터 합계 계산"""
+    ids = [int(k) for k in cart.keys()] if cart else []
+    products = Product.objects.filter(id__in=ids)
+    qty_map = {int(k): max(1, int(v)) if str(v).isdigit() or isinstance(v, int) else 1 for k, v in cart.items()}
+    subtotal = 0
+    for p in products:
+        subtotal += int(p.price) * qty_map.get(p.id, 1)
+    shipping = 0 if subtotal >= 30000 or subtotal == 0 else 3000
+    total = subtotal + shipping
+    return {
+        'count': sum(qty_map.values()) if qty_map else 0,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'total': total,
+    }
+
+
+def update_cart(request):
+    """AJAX: 수량 변경/삭제 (quantity <= 0 이면 제거)
+    POST: product_id, quantity
+    """
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Invalid method')
+    try:
+        product_id = int(request.POST.get('product_id'))
+        quantity = int(request.POST.get('quantity', 1))
+    except (TypeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'invalid-params'}, status=400)
+
+    # 존재 검증
+    try:
+        Product.objects.only('id').get(id=product_id)
+    except Product.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'product-not-found'}, status=404)
+
+    cart = request.session.get('cart', {})
+    key = str(product_id)
+    if quantity <= 0:
+        cart.pop(key, None)
+    else:
+        cart[key] = quantity
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    summary = _calc_summary(cart)
+    return JsonResponse({'ok': True, 'cart': cart, 'summary': summary})
+
+
+def clear_cart(request):
+    """AJAX: 장바구니 비우기"""
+    if request.method != 'POST':
+        return HttpResponseBadRequest('Invalid method')
+    request.session['cart'] = {}
+    request.session.modified = True
+    return JsonResponse({'ok': True, 'cart': {}, 'summary': {'count': 0, 'subtotal': 0, 'shipping': 0, 'total': 0}})
 
 
 def api_ai_recommendations(request):

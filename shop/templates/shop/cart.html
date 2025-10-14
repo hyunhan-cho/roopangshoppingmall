@@ -433,12 +433,15 @@
     <div class="main-container">
         <!-- 장바구니 콘텐츠 -->
         <div class="cart-content">
-            <h1 class="cart-title">장바구니 🛒</h1>
+            <div class="cart-title" style="display:flex; align-items:center; justify-content:space-between;">
+                <span>장바구니 🛒</span>
+                <button id="btn-clear-cart" class="remove-btn" title="장바구니 비우기">전체 비우기</button>
+            </div>
             
             {% if cart_products %}
             <div class="cart-items">
                 {% for product in cart_products %}
-                <div class="cart-item">
+                <div class="cart-item" data-id="{{ product.id }}">
                     <input type="checkbox" class="item-checkbox" checked>
                     <img src="{{ product.img }}" alt="{{ product.name }}" class="item-image">
                     <div class="item-info">
@@ -448,9 +451,9 @@
                     </div>
                     <div class="item-actions">
                         <div class="quantity-control">
-                            <button class="quantity-btn">-</button>
+                            <button class="quantity-btn" data-delta="-1">-</button>
                             <input type="number" value="1" class="quantity-input">
-                            <button class="quantity-btn">+</button>
+                            <button class="quantity-btn" data-delta="1">+</button>
                         </div>
                         <button class="remove-btn">삭제</button>
                     </div>
@@ -474,15 +477,15 @@
                 <h3 class="summary-title">주문 요약</h3>
                 <div class="summary-row">
                     <span>상품금액</span>
-                    <span>50,000원</span>
+                    <span id="sum-subtotal">{{ subtotal|default:0|floatformat:"0" }}원</span>
                 </div>
                 <div class="summary-row">
                     <span>배송비</span>
-                    <span>무료</span>
+                    <span id="sum-shipping">{{ shipping|default:0|floatformat:"0" }}원</span>
                 </div>
                 <div class="summary-total">
                     <span>총 결제금액</span>
-                    <span>50,000원</span>
+                    <span id="sum-total">{{ total|default:0|floatformat:"0" }}원</span>
                 </div>
                 <button class="checkout-btn">주문하기</button>
             </div>
@@ -509,6 +512,7 @@
         </div>
     </div>
 
+    {{ cart_quantities|json_script:"cart-quantities" }}
     <script>
         (function(){
             const btn = document.getElementById('btn-ai-reco');
@@ -577,6 +581,123 @@
                 }
             });
         })();
+    </script>
+    <script>
+        // 수량/삭제/합계 갱신 스크립트
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        function fmt(n){ try { return Number(n).toLocaleString() + '원'; } catch { return String(n) + '원'; } }
+
+        function applySummary(sum){
+            const s1 = document.getElementById('sum-subtotal');
+            const s2 = document.getElementById('sum-shipping');
+            const s3 = document.getElementById('sum-total');
+            if (s1) s1.textContent = fmt(sum?.subtotal || 0);
+            if (s2) s2.textContent = fmt(sum?.shipping || 0);
+            if (s3) s3.textContent = fmt(sum?.total || 0);
+        }
+
+        async function updateCartApi(productId, quantity){
+            const res = await fetch('{% url "update_cart" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') || '',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                },
+                body: new URLSearchParams({ product_id: String(productId), quantity: String(quantity) })
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.error || 'update-failed');
+            return data.summary;
+        }
+
+        async function clearCart(){
+            const res = await fetch('{% url "clear_cart" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
+            });
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error('clear-failed');
+            return data.summary;
+        }
+
+        // 초기 수량 반영
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const txt = document.getElementById('cart-quantities')?.textContent || '{}';
+                const qmap = JSON.parse(txt);
+                document.querySelectorAll('.cart-item').forEach(row => {
+                    const pid = row.getAttribute('data-id');
+                    const input = row.querySelector('.quantity-input');
+                    if (qmap && pid && input && qmap[pid] != null){
+                        input.value = String(qmap[pid]);
+                    }
+                });
+            } catch(e) { /* noop */ }
+        });
+
+        // 이벤트 델리게이션: 수량 증감/삭제/비우기
+        document.addEventListener('click', async (e) => {
+            // 전체 비우기
+            if (e.target.matches('#btn-clear-cart')){
+                try {
+                    const sum = await clearCart();
+                    applySummary(sum);
+                    document.querySelectorAll('.cart-item').forEach(el => el.remove());
+                } catch(err){ console.error(err); alert('장바구니 비우기에 실패했습니다.'); }
+                return;
+            }
+
+            const item = e.target.closest('.cart-item');
+            if (!item) return;
+            const pid = item.getAttribute('data-id');
+
+            // 수량 버튼
+            if (e.target.matches('.quantity-btn')){
+                const delta = parseInt(e.target.getAttribute('data-delta') || '0', 10);
+                const input = item.querySelector('.quantity-input');
+                let val = parseInt(input.value || '1', 10) + delta;
+                if (val < 0) val = 0;
+                input.value = String(val);
+                try {
+                    const sum = await updateCartApi(pid, val);
+                    applySummary(sum);
+                    if (val === 0) item.remove();
+                } catch(err){ console.error(err); alert('장바구니 업데이트에 실패했습니다.'); }
+                return;
+            }
+
+            // 삭제 버튼
+            if (e.target.matches('.remove-btn')){
+                try {
+                    const sum = await updateCartApi(pid, 0);
+                    applySummary(sum);
+                    item.remove();
+                } catch(err){ console.error(err); alert('삭제에 실패했습니다.'); }
+                return;
+            }
+        });
+
+        // 수량 입력 수동 변경 반영
+        document.addEventListener('change', async (e) => {
+            const input = e.target.closest('.quantity-input');
+            if (!input) return;
+            const item = e.target.closest('.cart-item');
+            if (!item) return;
+            const pid = item.getAttribute('data-id');
+            let val = parseInt(input.value || '1', 10);
+            if (isNaN(val) || val < 0) val = 0;
+            input.value = String(val);
+            try {
+                const sum = await updateCartApi(pid, val);
+                applySummary(sum);
+                if (val === 0) item.remove();
+            } catch(err){ console.error(err); alert('장바구니 업데이트에 실패했습니다.'); }
+        });
     </script>
 </body>
 </html>
