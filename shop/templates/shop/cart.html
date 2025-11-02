@@ -431,6 +431,18 @@
     </div>
     
     <div class="main-container">
+        <!-- AI 추천 섹션 -->
+        <div class="recommendation-section">
+            <div class="recommendation-header">
+                <div class="ai-icon">🤖</div>
+                <div>
+                    <div class="recommendation-title">당신의 취향을 기반으로 추천합니다</div>
+                    <div class="recommendation-subtitle">AI가 분석한 맞춤형 상품 추천</div>
+                </div>
+            </div>
+            <div style="font-size:13px; color:#666; margin-bottom:12px;" id="ai-reco-status">추천 생성 중...</div>
+            <div id="ai-recommended" class="recommended-products"></div>
+        </div>
         <!-- 장바구니 콘텐츠 -->
         <div class="cart-content">
             <div class="cart-title" style="display:flex; align-items:center; justify-content:space-between;">
@@ -493,33 +505,15 @@
         {% endif %}
     </div>
     
-    <!-- AI 추천 섹션 -->
-    <div class="main-container">
-        <div class="recommendation-section">
-            <div class="recommendation-header">
-                <div class="ai-icon">🤖</div>
-                <div>
-                    <div class="recommendation-title">당신의 취향을 기반으로 추천합니다</div>
-                    <div class="recommendation-subtitle">AI가 분석한 맞춤형 상품 추천</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-                <button id="btn-ai-reco" class="checkout-btn" style="width:auto; padding:10px 14px; font-size:14px;">AI 추천 받아보기</button>
-                <div id="ai-reco-status" style="font-size:13px; color:#666; display:none; align-self:center;">추천 생성 중...</div>
-            </div>
-            
-            <div id="ai-recommended" class="recommended-products"></div>
-        </div>
-    </div>
+    
 
     {{ cart_quantities|json_script:"cart-quantities" }}
     <script>
         (function(){
-            const btn = document.getElementById('btn-ai-reco');
             const status = document.getElementById('ai-reco-status');
             const grid = document.getElementById('ai-recommended');
-            if (!btn) return;
-            
+            if (!grid) return;
+
             function render(items){
                 grid.innerHTML = '';
                 if (!items || !items.length){
@@ -540,10 +534,9 @@
                     grid.appendChild(card);
                 }
             }
-            
-            btn.addEventListener('click', async () => {
-                status.style.display = 'inline';
-                btn.disabled = true;
+
+            async function loadRecommendations(){
+                if (status) status.style.display = 'inline';
                 try {
                     const res = await fetch('{% url "api_ai_recommendations" %}');
                     const data = await res.json();
@@ -555,11 +548,17 @@
                 } catch (e){
                     render([]);
                 } finally {
-                    status.style.display = 'none';
-                    btn.disabled = false;
+                    if (status) status.style.display = 'none';
                 }
-            });
-            
+            }
+
+            // 페이지 로드시 자동 로드
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadRecommendations);
+            } else {
+                loadRecommendations();
+            }
+
             // 선택하기 버튼 델리게이션: 장바구니 담기
             grid?.addEventListener('click', async (e) => {
                 const target = e.target.closest('.select-btn');
