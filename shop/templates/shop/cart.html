@@ -523,6 +523,7 @@
                 for (const p of items){
                     const card = document.createElement('div');
                     card.className = 'recommended-product';
+                    if (p.id != null) card.dataset.id = String(p.id);
                     card.innerHTML = `
                         <img src="${p.img || ''}" alt="${p.name || ''}" class="recommended-image">
                         <div class="recommended-info">
@@ -559,24 +560,34 @@
                 loadRecommendations();
             }
 
-            // 선택하기 버튼 델리게이션: 장바구니 담기
+            // 델리게이션:
+            // 1) 선택하기 버튼 → 장바구니 담기
+            // 2) 카드 영역 클릭 → 상품 상세 페이지로 이동
             grid?.addEventListener('click', async (e) => {
-                const target = e.target.closest('.select-btn');
-                if (!target) return;
-                const pid = target.getAttribute('data-id');
-                if (!pid) return;
-                const formData = new FormData();
-                formData.append('product_id', pid);
-                formData.append('quantity', '1');
-                const csrf = '{{ csrf_token }}';
-                const res = await fetch('{% url "add_to_cart" %}', {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': csrf },
-                    body: formData
-                });
-                if (res.ok){
-                    target.textContent = '담김!';
-                    target.disabled = true;
+                const selectBtn = e.target.closest('.select-btn');
+                if (selectBtn){
+                    const pid = selectBtn.getAttribute('data-id');
+                    if (!pid) return;
+                    const formData = new FormData();
+                    formData.append('product_id', pid);
+                    formData.append('quantity', '1');
+                    const csrf = '{{ csrf_token }}';
+                    const res = await fetch('{% url "add_to_cart" %}', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrf },
+                        body: formData
+                    });
+                    if (res.ok){
+                        selectBtn.textContent = '담김!';
+                        selectBtn.disabled = true;
+                    }
+                    return; // 버튼 클릭일 때는 여기서 종료
+                }
+
+                const cardEl = e.target.closest('.recommended-product');
+                if (cardEl && cardEl.dataset.id){
+                    const pid = cardEl.dataset.id;
+                    window.location.href = `/shop/product/${pid}/`;
                 }
             });
         })();
