@@ -380,13 +380,13 @@
         
         <!-- 필터 -->
         <div class="filters">
-            <button class="filter-btn active">전체</button>
-            <button class="filter-btn">필통</button>
-            <button class="filter-btn">노트</button>
-            <button class="filter-btn">스티커</button>
-            <button class="filter-btn">떡메모지</button>
-            <button class="filter-btn">다이어리</button>
-            <button class="filter-btn">마스킹테이프</button>
+            <button type="button" class="filter-btn {% if not request.GET.q %}active{% endif %}" data-q="">전체</button>
+            <button type="button" class="filter-btn {% if request.GET.q == '필통' %}active{% endif %}" data-q="필통">필통</button>
+            <button type="button" class="filter-btn {% if request.GET.q == '노트' %}active{% endif %}" data-q="노트">노트</button>
+            <button type="button" class="filter-btn {% if request.GET.q == '스티커' %}active{% endif %}" data-q="스티커">스티커</button>
+            <button type="button" class="filter-btn {% if request.GET.q == '떡메모지' %}active{% endif %}" data-q="떡메모지">떡메모지</button>
+            <button type="button" class="filter-btn {% if request.GET.q == '다이어리' %}active{% endif %}" data-q="다이어리">다이어리</button>
+            <button type="button" class="filter-btn {% if request.GET.q == '마스킹테이프' %}active{% endif %}" data-q="마스킹테이프">마스킹테이프</button>
         </div>
         
         <!-- 상품 그리드 -->
@@ -483,6 +483,21 @@
                     e.preventDefault();
                     const id = btn.dataset.productId;
                     addToCart(id);
+                });
+            });
+            // 필터 버튼: 클릭 시 q 파라미터로 이동
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const q = btn.dataset.q || '';
+                    const url = new URL(window.location.href);
+                    if (q) {
+                        url.searchParams.set('q', q);
+                    } else {
+                        url.searchParams.delete('q');
+                    }
+                    // product_list 경로 유지
+                    const next = url.pathname + (url.searchParams.toString() ? ('?' + url.searchParams.toString()) : '');
+                    window.location.href = next;
                 });
             });
         });

@@ -90,8 +90,12 @@ def product_list(request):
     q = request.GET.get('q', '').strip()
     products = Product.objects.all()
     if q:
-        products = products.filter(
-            Q(name__icontains=q) | Q(brand__icontains=q) | Q(category__icontains=q)
+        products = (
+            products
+            .filter(
+                Q(name__icontains=q) | Q(brand__icontains=q) | Q(category__icontains=q)
+            )
+            .order_by('-if_affiliated', 'name')  # 제휴 상품 우선 정렬
         )
     context = {'products': products, 'q': q}
     return render(request, 'shop/product_list.html', context)
