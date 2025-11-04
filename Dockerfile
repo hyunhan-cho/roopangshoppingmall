@@ -10,10 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System deps (psycopg-binary ok)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# System deps 단계 제거 (psycopg[binary] 사용으로 컴파일 불필요)
 
 # Copy project
 COPY . /app
