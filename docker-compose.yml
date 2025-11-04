@@ -12,15 +12,12 @@ services:
       DJANGO_ALLOWED_HOSTS: "hyunhan.shop,www.hyunhan.shop,100.26.164.24"
       # CSRF 신뢰 도메인 (스킴 포함)
       DJANGO_CSRF_TRUSTED_ORIGINS: "https://hyunhan.shop,https://www.hyunhan.shop"
-      # Postgres 사용 시 DATABASE_URL 활성화 (db 서비스와 연결)
-      DATABASE_URL: "postgresql://shopping:change-me@db:5432/shoppingmall"
+      # 외부 DB 사용: .env 파일의 DATABASE_URL 우선 적용됨
       PORT: "8080"
     command: ["/bin/sh", "-lc", "python manage.py migrate --noinput && python manage.py collectstatic --noinput || true && exec gunicorn config.wsgi:application --bind 0.0.0.0:8080 --workers 3 --timeout 120"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-    depends_on:
-      - db
 
   nginx:
     image: nginx:1.25-alpine
@@ -45,25 +42,13 @@ services:
       - roopangshoppingmall_certbot-etc:/etc/letsencrypt
     entrypoint: "/bin/sh -c 'while true; do sleep 12h; done'"
 
-  db:
-    image: postgres:16
-    container_name: shoppingmall_db
-    environment:
-      POSTGRES_DB: shoppingmall
-      POSTGRES_USER: shopping
-      POSTGRES_PASSWORD: change-me
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    # 로컬에서 필요 시 열기 (EC2 내부 통신이면 생략 가능)
-    # ports:
-    #   - "5432:5432"
-
 volumes:
   static_volume:
   media_volume:
-  pgdata:
   roopangshoppingmall_certbot-www:
+    external: true
   roopangshoppingmall_certbot-etc:
+    external: true
 
   
   
