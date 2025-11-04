@@ -62,8 +62,8 @@ volumes:
   static_volume:
   media_volume:
   pgdata:
-  certbot-www:
-  certbot-etc:
+  roopangshoppingmall_certbot-www:
+  roopangshoppingmall_certbot-etc:
 
   
   
