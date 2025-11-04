@@ -15,7 +15,7 @@ services:
       # Postgres 사용 시 DATABASE_URL 활성화 (db 서비스와 연결)
       DATABASE_URL: "postgresql://shopping:change-me@db:5432/shoppingmall"
       PORT: "8080"
-    command: ["/bin/sh", "/app/docker/entrypoint.sh"]
+    command: ["/bin/sh", "-lc", "python manage.py migrate --noinput && python manage.py collectstatic --noinput || true && exec gunicorn config.wsgi:application --bind 0.0.0.0:8080 --workers 3 --timeout 120"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
