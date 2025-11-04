@@ -22,6 +22,10 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . /app
 
+# Ensure entrypoint has unix line endings and is executable
+RUN sed -i 's/\r$//' /app/docker/entrypoint.sh && \
+    chmod +x /app/docker/entrypoint.sh
+
 # Collectstatic은 런타임 entrypoint에서 수행
 
 # Gunicorn
