@@ -8,10 +8,10 @@ services:
       - .env
     environment:
       DJANGO_DEBUG: "False"
-      # 배포 시 EC2 퍼블릭 IP/도메인으로 교체 (쉼표 구분)
-      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost"
-      # 필요 시 CSRF 신뢰 도메인 추가 (쉼표 구분, 스킴 포함)
-      # DJANGO_CSRF_TRUSTED_ORIGINS: "https://example.com"
+      # 배포 도메인/IP 반영
+      DJANGO_ALLOWED_HOSTS: "hyunhan.shop,www.hyunhan.shop,100.26.164.24"
+      # CSRF 신뢰 도메인 (스킴 포함)
+      DJANGO_CSRF_TRUSTED_ORIGINS: "https://hyunhan.shop,https://www.hyunhan.shop"
       # Postgres 사용 시 DATABASE_URL 활성화 (db 서비스와 연결)
       DATABASE_URL: "postgresql://shopping:change-me@db:5432/shoppingmall"
       PORT: "8080"
@@ -32,8 +32,8 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/static:ro
       - media_volume:/media:ro
-      - certbot-www:/var/www/certbot:ro
-      - certbot-etc:/etc/letsencrypt:ro
+      - roopangshoppingmall_certbot-www:/var/www/certbot:ro
+      - roopangshoppingmall_certbot-etc:/etc/letsencrypt:ro
     depends_on:
       - web
 
@@ -41,8 +41,8 @@ services:
     image: certbot/certbot:latest
     container_name: shoppingmall_certbot
     volumes:
-      - certbot-www:/var/www/certbot
-      - certbot-etc:/etc/letsencrypt
+      - roopangshoppingmall_certbot-www:/var/www/certbot
+      - roopangshoppingmall_certbot-etc:/etc/letsencrypt
     entrypoint: "/bin/sh -c 'while true; do sleep 12h; done'"
 
   db:
