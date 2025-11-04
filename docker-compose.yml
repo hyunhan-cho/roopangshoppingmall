@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: shoppingmall_web
+    env_file:
+      - .env
+    environment:
+      DJANGO_DEBUG: "False"
+      # 배포 시 EC2 퍼블릭 IP/도메인으로 교체 (쉼표 구분)
+      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost"
+      # 필요 시 CSRF 신뢰 도메인 추가 (쉼표 구분, 스킴 포함)
+      # DJANGO_CSRF_TRUSTED_ORIGINS: "https://example.com"
+      # Postgres 사용 시 DATABASE_URL 활성화 (db 서비스와 연결)
+      DATABASE_URL: "postgresql://shopping:change-me@db:5432/shoppingmall"
+      PORT: "8080"
+    command: ["/bin/sh", "-c", "/app/docker/entrypoint.sh"]
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: shoppingmall_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/static:ro
+      - media_volume:/media:ro
+    depends_on:
+      - web
+
+  db:
+    image: postgres:16
+    container_name: shoppingmall_db
+    environment:
+      POSTGRES_DB: shoppingmall
+      POSTGRES_USER: shopping
+      POSTGRES_PASSWORD: change-me
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # 로컬에서 필요 시 열기 (EC2 내부 통신이면 생략 가능)
+    # ports:
+    #   - "5432:5432"
+
+volumes:
+  static_volume:
+  media_volume:
+  pgdata:
+
