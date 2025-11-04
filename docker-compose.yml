@@ -15,7 +15,7 @@ services:
       # Postgres 사용 시 DATABASE_URL 활성화 (db 서비스와 연결)
       DATABASE_URL: "postgresql://shopping:change-me@db:5432/shoppingmall"
       PORT: "8080"
-    command: ["/bin/sh", "-c", "/app/docker/entrypoint.sh"]
+    command: ["/bin/sh", "/app/docker/entrypoint.sh"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
