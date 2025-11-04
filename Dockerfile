@@ -12,16 +12,17 @@ WORKDIR /app
 
 # System deps 단계 제거 (psycopg[binary] 사용으로 컴파일 불필요)
 
-# Copy project
-COPY . /app
+# Install deps first with caching
+COPY requirements.txt /app/requirements.txt
 
 # Install
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    pip install gunicorn whitenoise psycopg[binary]
+    pip install --no-cache-dir -r requirements.txt
 
-# Collect static at build time (optional)
-RUN python manage.py collectstatic --noinput || true
+# Copy project
+COPY . /app
+
+# Collectstatic은 런타임 entrypoint에서 수행
 
 # Gunicorn
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "3", "--timeout", "120"]
