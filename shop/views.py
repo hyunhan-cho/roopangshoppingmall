@@ -88,7 +88,9 @@ def product_list(request):
         return redirect('consent_form')
     
     q = request.GET.get('q', '').strip()
-    current_cls = request.GET.get('cls', '').strip() or '생활용품'
+    # cls가 없고 검색어가 없을 때만 기본값을 '생활용품'으로 설정
+    raw_cls = request.GET.get('cls', '').strip()
+    current_cls = raw_cls if raw_cls else ('' if q else '생활용품')
 
     products = Product.objects.all()
     # 분류(대카테고리) 필터
