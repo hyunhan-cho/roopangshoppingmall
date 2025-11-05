@@ -88,16 +88,43 @@ def product_list(request):
         return redirect('consent_form')
     
     q = request.GET.get('q', '').strip()
+    current_cls = request.GET.get('cls', '').strip() or '생활용품'
+
     products = Product.objects.all()
+    # 분류(대카테고리) 필터
+    if current_cls:
+        products = products.filter(classification=current_cls)
+
+    # 검색/소카테고리 필터 (이름/브랜드/카테고리에 광범위 적용)
     if q:
         products = (
             products
             .filter(
                 Q(name__icontains=q) | Q(brand__icontains=q) | Q(category__icontains=q)
             )
-            .order_by('-if_affiliated', 'name')  # 제휴 상품 우선 정렬
         )
-    context = {'products': products, 'q': q}
+
+    # 제휴 상품 우선 정렬, 그 다음 이름
+    products = products.order_by('-if_affiliated', 'name')
+
+    # 현재 분류에 속한 소카테고리 목록(빈 값 제외)
+    categories = (
+        Product.objects
+        .filter(classification=current_cls)
+        .exclude(category__isnull=True)
+        .exclude(category__exact='')
+        .values_list('category', flat=True)
+        .distinct()
+    )
+    categories = list(categories)
+
+    context = {
+        'products': products,
+        'q': q,
+        'current_cls': current_cls,
+        'categories': categories,
+        'classifications': ['생활용품', '다과류'],
+    }
     return render(request, 'shop/product_list.html', context)
 
 @ensure_csrf_cookie

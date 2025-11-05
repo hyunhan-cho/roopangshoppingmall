@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>루팡! - 생활용품</title>
+    <title>루팡! - {{ current_cls|default:"생활용품" }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -367,26 +367,30 @@
     <!-- 상단 보조바 (홈과 동일) -->
     <div class="topbar">
         <div class="topbar-container">
-            <a href="{% url 'product_list' %}" style="color:#fff;background:#111827;padding:4px 10px;border-radius:6px;text-decoration:none;font-weight:600;">🚀 전체상품</a>
-            <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">오늘의딜</a>
-            <a href="{% url 'product_list' %}" style="color:#333;text-decoration:none;">브랜드관</a>
+            <a href="{% url 'product_list' %}?cls={{ current_cls|urlencode }}" style="color:#fff;background:#111827;padding:4px 10px;border-radius:6px;text-decoration:none;font-weight:600;">🚀 전체상품</a>
+            <a href="{% url 'product_list' %}?cls={{ current_cls|urlencode }}" style="color:#333;text-decoration:none;">오늘의딜</a>
+            <a href="{% url 'product_list' %}?cls={{ current_cls|urlencode }}" style="color:#333;text-decoration:none;">브랜드관</a>
             <a href="{% url 'cart_view' %}" style="color:#333;text-decoration:none;">장바구니</a>
         </div>
     </div>
     
     <!-- 메인 컨테이너 -->
     <div class="main-container">
-        <h1 class="page-title">생활용품 🏠</h1>
+        <h1 class="page-title">{{ current_cls }} {% if current_cls == '생활용품' %}🏠{% elif current_cls == '다과류' %}🍪{% endif %}</h1>
         
-        <!-- 필터 -->
-        <div class="filters">
+        <!-- 분류/카테고리 필터 -->
+        <div class="filters" style="flex-wrap: wrap; align-items:center; gap:8px 10px;">
+            <!-- 대분류 탭 -->
+            <div class="class-tabs" style="display:flex; gap:8px; margin-right:12px;">
+                {% for cls in classifications %}
+                <button type="button" class="filter-btn {% if current_cls == cls %}active{% endif %} cls-btn" data-cls="{{ cls }}">{{ cls }}</button>
+                {% endfor %}
+            </div>
+            <!-- 소카테고리 -->
             <button type="button" class="filter-btn {% if not request.GET.q %}active{% endif %}" data-q="">전체</button>
-            <button type="button" class="filter-btn {% if request.GET.q == '필통' %}active{% endif %}" data-q="필통">필통</button>
-            <button type="button" class="filter-btn {% if request.GET.q == '노트' %}active{% endif %}" data-q="노트">노트</button>
-            <button type="button" class="filter-btn {% if request.GET.q == '스티커' %}active{% endif %}" data-q="스티커">스티커</button>
-            <button type="button" class="filter-btn {% if request.GET.q == '떡메모지' %}active{% endif %}" data-q="떡메모지">떡메모지</button>
-            <button type="button" class="filter-btn {% if request.GET.q == '다이어리' %}active{% endif %}" data-q="다이어리">다이어리</button>
-            <button type="button" class="filter-btn {% if request.GET.q == '마스킹테이프' %}active{% endif %}" data-q="마스킹테이프">마스킹테이프</button>
+            {% for cat in categories %}
+            <button type="button" class="filter-btn {% if request.GET.q == cat %}active{% endif %}" data-q="{{ cat }}">{{ cat }}</button>
+            {% endfor %}
         </div>
         
         <!-- 상품 그리드 -->
@@ -488,14 +492,24 @@
             // 필터 버튼: 클릭 시 q 파라미터로 이동
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const q = btn.dataset.q || '';
                     const url = new URL(window.location.href);
-                    if (q) {
-                        url.searchParams.set('q', q);
-                    } else {
+                    // 분류 탭 클릭일 경우: cls만 변경하고 q는 제거
+                    if (btn.classList.contains('cls-btn')) {
+                        const cls = btn.dataset.cls || '';
+                        if (cls) url.searchParams.set('cls', cls); else url.searchParams.delete('cls');
                         url.searchParams.delete('q');
+                    } else {
+                        // 소카테고리 필터
+                        const q = btn.dataset.q || '';
+                        if (q) {
+                            url.searchParams.set('q', q);
+                        } else {
+                            url.searchParams.delete('q');
+                        }
+                        // cls는 유지
+                        const currentCls = document.querySelector('.cls-btn.active')?.dataset.cls;
+                        if (currentCls) url.searchParams.set('cls', currentCls);
                     }
-                    // product_list 경로 유지
                     const next = url.pathname + (url.searchParams.toString() ? ('?' + url.searchParams.toString()) : '');
                     window.location.href = next;
                 });
