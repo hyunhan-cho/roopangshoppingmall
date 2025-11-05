@@ -104,8 +104,13 @@ def product_list(request):
             )
         )
 
-    # 제휴 상품 우선 정렬, 그 다음 이름
-    products = products.order_by('-if_affiliated', 'name')
+    # 정렬 전략
+    # - 기본 리스트: id 순
+    # - 검색(q 존재): 제휴 우선 → id 순
+    if q:
+        products = products.order_by('-if_affiliated', 'id')
+    else:
+        products = products.order_by('id')
 
     # 현재 분류에 속한 소카테고리 목록(빈 값 제외)
     categories = (
